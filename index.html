@@ -1,0 +1,1062 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Family Board">
+<meta name="theme-color" content="#0B6E78">
+<meta name="robots" content="noindex, nofollow">
+<title>Family Weekend Board</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout concept: a shared noticeboard. Family favourites sit in a warm band on top; below, Indoors and Outdoors run as two columns grouped by category; a separate saffron-coloured "Eating out" band carries the vegetarian dining list. Cards carry cost, age fit, a heart and a notes thread; the top pick in each list gets a heavy border. */
+:root {
+  --bg: #EDF3F3;
+  --surface: #FFFFFF;
+  --ink: #12262C;
+  --muted: #566B71;
+  --line: #D3DFE0;
+  --chip: #E6EEEF;
+  --brand: #0B6E78;
+  --brand-ink: #FFFFFF;
+  --brand-soft: #CDE8EB;
+  --sun-bg: #FFF3C9;
+  --sun-line: #EBCB5E;
+  --in: #3A57A6;
+  --in-bg: #E4EAF8;
+  --out: #2B7A4B;
+  --out-bg: #DFF1E5;
+  --heart: #D1304A;
+  --good: #1E7448;
+  --good-bg: #DAF0E3;
+  --warn: #9A5A07;
+  --warn-bg: #FBE9CC;
+  --font-display: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1A1E;
+    --surface: #16262B;
+    --ink: #E7F0F1;
+    --muted: #9CB2B7;
+    --line: #28393F;
+    --chip: #203238;
+    --brand: #4FC1CC;
+    --brand-ink: #06242A;
+    --brand-soft: #14393F;
+    --sun-bg: #2A2611;
+    --sun-line: #5E5220;
+    --in: #8FA7EC;
+    --in-bg: #1C2541;
+    --out: #6CCB8F;
+    --out-bg: #17332A;
+    --heart: #FF6C82;
+    --good: #6CCB8F;
+    --good-bg: #17332A;
+    --warn: #F1B45D;
+    --warn-bg: #352712;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1A1E;
+  --surface: #16262B;
+  --ink: #E7F0F1;
+  --muted: #9CB2B7;
+  --line: #28393F;
+  --chip: #203238;
+  --brand: #4FC1CC;
+  --brand-ink: #06242A;
+  --brand-soft: #14393F;
+  --sun-bg: #2A2611;
+  --sun-line: #5E5220;
+  --in: #8FA7EC;
+  --in-bg: #1C2541;
+  --out: #6CCB8F;
+  --out-bg: #17332A;
+  --heart: #FF6C82;
+  --good: #6CCB8F;
+  --good-bg: #17332A;
+  --warn: #F1B45D;
+  --warn-bg: #352712;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  padding-block: 20px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button, input, select, textarea { font: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, a:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; }
+
+/* header */
+.top { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: flex-end; justify-content: space-between; }
+.top > div { min-width: 0; }
+h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.9rem, 6vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+.sub { color: var(--muted); margin: 6px 0 0; }
+.who { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.who .lbl { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-right: 4px; }
+.who.nudge { outline: 2px solid var(--heart); outline-offset: 6px; border-radius: 12px; }
+.chip-btn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 36px;
+}
+.chip-btn[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.who input { width: 130px; border-radius: 999px; padding: 6px 12px; min-height: 36px; }
+
+.dates { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 16px 0 0; padding: 0; list-style: none; font-size: 0.85rem; color: var(--muted); }
+.dates b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* filter bar */
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 22px 0 16px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: transparent; color: var(--ink); padding: 8px 16px; font-weight: 600; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.spacer { flex: 1; }
+.add-btn { background: var(--brand); color: var(--brand-ink); border: 0; border-radius: 10px; padding: 9px 18px; font-weight: 700; cursor: pointer; }
+
+/* sections */
+.favs { background: var(--sun-bg); border: 1px solid var(--sun-line); border-radius: 16px; padding: 16px; margin-bottom: 26px; }
+.favs h2, .col h2 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.01em; margin: 0; }
+.favs h2 { font-size: 1.4rem; }
+.favs .sub { margin-bottom: 12px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 12px; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
+@media (min-width: 900px) { .cols.two { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.col h2 { font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+.pill { font-family: var(--font-body); font-size: 0.78rem; font-weight: 700; border-radius: 999px; padding: 2px 10px; }
+.col[data-b="in"] .pill { background: var(--in-bg); color: var(--in); }
+.col[data-b="out"] .pill { background: var(--out-bg); color: var(--out); }
+.cat { margin: 20px 0 8px; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 700; }
+.cards { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+.cols:not(.two) .cards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
+.none { color: var(--muted); margin: 8px 0 0; }
+
+/* card */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.card.is-top { border: 2px solid var(--brand); box-shadow: 0 0 0 4px var(--brand-soft); padding: 11px 13px; }
+.card-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.card h4 { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; line-height: 1.25; margin: 0; overflow-wrap: anywhere; }
+.where { margin: 0; color: var(--muted); font-size: 0.85rem; overflow-wrap: anywhere; }
+.note { margin: 0; font-size: 0.88rem; overflow-wrap: anywhere; }
+.why { margin: 0; font-size: 0.86rem; background: var(--brand-soft); border-radius: 8px; padding: 8px 10px; overflow-wrap: anywhere; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tag { font-size: 0.74rem; font-weight: 600; border-radius: 6px; padding: 3px 8px; background: var(--chip); color: var(--muted); }
+.tag.when { background: var(--in-bg); color: var(--in); font-variant-numeric: tabular-nums; }
+.tag.regular { background: var(--sun-bg); color: var(--warn); border: 1px solid var(--sun-line); }
+.tag.pick { background: var(--brand); color: var(--brand-ink); }
+.tag.veg { background: var(--good-bg); color: var(--good); }
+.tag.veg.mixed { background: var(--warn-bg); color: var(--warn); }
+.cost { font-size: 0.78rem; font-weight: 700; border-radius: 6px; padding: 3px 8px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.cost.free { background: var(--good-bg); color: var(--good); }
+.cost.ok { background: var(--good-bg); color: var(--good); }
+.cost.over { background: var(--warn-bg); color: var(--warn); }
+.cost.unk { background: var(--chip); color: var(--muted); }
+.fit { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 6px; padding: 2px 8px; font-size: 0.74rem; font-weight: 600; cursor: pointer; }
+.fit .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+.fit .dot.on { background: var(--brand); }
+.foot { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 0.78rem; color: var(--muted); }
+.linkbtn { background: none; border: 0; padding: 6px 0; color: var(--brand); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-size: 0.8rem; }
+a.linkbtn { display: inline-block; }
+.linkbtn.warn { color: var(--heart); }
+.heart { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 5px 10px; font-weight: 700; cursor: pointer; min-height: 34px; flex: none; font-variant-numeric: tabular-nums; }
+.heart svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.heart[aria-pressed="true"] { color: var(--heart); border-color: var(--heart); }
+.heart[aria-pressed="true"] svg { fill: currentColor; }
+.inits { display: inline-flex; gap: 3px; }
+.inits i { font-style: normal; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); font-size: 0.68rem; font-weight: 700; }
+.donetag { color: var(--good); font-weight: 700; }
+
+/* notes thread on every card */
+details.notes { border-top: 1px solid var(--line); padding-top: 4px; }
+details.notes summary { cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--brand); padding: 4px 0; }
+.nlist { list-style: none; margin: 6px 0; padding: 0; display: grid; gap: 4px; font-size: 0.84rem; }
+.nlist li { overflow-wrap: anywhere; }
+.nrow { display: flex; gap: 6px; padding-bottom: 4px; }
+.nrow input { flex: 1; min-height: 36px; padding: 6px 10px; }
+.nrow .chip-btn { padding: 6px 12px; min-height: 36px; }
+
+.empty { border: 1px dashed var(--line); border-radius: 12px; padding: 28px 18px; text-align: center; color: var(--muted); margin: 0; }
+.empty strong { color: var(--ink); display: block; margin-bottom: 4px; }
+
+/* add forms */
+details.add { margin-top: 34px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px 16px; }
+details.add summary { cursor: pointer; font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; padding: 12px 0; }
+form.add-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 4px 0 16px; }
+form.add-form .full { grid-column: 1 / -1; }
+@media (max-width: 560px) { form.add-form { grid-template-columns: minmax(0, 1fr); } }
+label.f { display: grid; gap: 4px; font-size: 0.8rem; font-weight: 600; color: var(--muted); min-width: 0; }
+input, select, textarea { color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; min-height: 40px; width: 100%; min-width: 0; }
+textarea { min-height: 64px; resize: vertical; }
+.radios { display: flex; gap: 8px; }
+.radios label { flex: 1; }
+.radios input { position: absolute; opacity: 0; width: 1px; height: 1px; min-height: 0; }
+.radios span { display: block; text-align: center; border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; background: var(--bg); color: var(--ink); font-weight: 600; cursor: pointer; }
+.radios input:checked + span { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.radios input:focus-visible + span { outline: 2px solid var(--brand); outline-offset: 2px; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--ink); font-weight: 600; }
+.check input { width: 18px; min-height: 0; height: 18px; }
+
+/* eating out: its own saffron colour scheme, scoped so the cards above are untouched */
+.dine {
+  --bg: #FBE4B4;
+  --surface: #FFFDF7;
+  --ink: #2B1B0E;
+  --muted: #6A5236;
+  --line: #E6CB8F;
+  --chip: #F3DEB0;
+  --brand: #B3380E;
+  --brand-ink: #FFFFFF;
+  --brand-soft: #F7D3C0;
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 18px;
+  padding: 20px 16px 8px;
+  margin-top: 36px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .dine {
+    --bg: #2A1E10;
+    --surface: #37281A;
+    --ink: #F7E9D2;
+    --muted: #CDB38C;
+    --line: #4F3B24;
+    --chip: #46341F;
+    --brand: #FF9A62;
+    --brand-ink: #2A1305;
+    --brand-soft: #5A3418;
+  }
+}
+:root[data-theme="dark"] .dine {
+  --bg: #2A1E10;
+  --surface: #37281A;
+  --ink: #F7E9D2;
+  --muted: #CDB38C;
+  --line: #4F3B24;
+  --chip: #46341F;
+  --brand: #FF9A62;
+  --brand-ink: #2A1305;
+  --brand-soft: #5A3418;
+}
+.dine-head { display: flex; flex-wrap: wrap; gap: 10px 20px; justify-content: space-between; align-items: flex-end; }
+.dine-head > div { min-width: 0; }
+.dine h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; letter-spacing: -0.01em; margin: 0; }
+.dine .cards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+.dine details.add { margin-top: 24px; margin-bottom: 12px; }
+
+.legend { margin: 28px 0 0; color: var(--muted); font-size: 0.82rem; max-width: 74ch; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; max-width: min(92vw, 520px); font-weight: 600; z-index: 20; }
+@media (prefers-reduced-motion: no-preference) {
+  .heart, .chip-btn, .seg button { transition: background-color 0.15s, color 0.15s, border-color 0.15s; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Family Weekend Board</h1>
+      <p class="sub" id="today"></p>
+    </div>
+    <div class="who" id="who" role="group" aria-label="Who is tapping"></div>
+  </header>
+  <ul class="dates" id="dates" aria-label="Dates to plan around"></ul>
+
+  <div class="bar" id="bar"></div>
+  <main id="board" aria-live="polite"></main>
+
+  <details class="add" id="addbox">
+    <summary>Add an idea</summary>
+    <form class="add-form" id="addform" autocomplete="off">
+      <label class="f full" for="f-name">What is it?
+        <input id="f-name" name="name" type="text" maxlength="80" required placeholder="e.g. Trampoline park at Roxy Square">
+      </label>
+      <div class="full radios" role="radiogroup" aria-label="Indoors or outdoors">
+        <label><input type="radio" name="bucket" value="in" checked><span>Indoors</span></label>
+        <label><input type="radio" name="bucket" value="out"><span>Outdoors</span></label>
+      </div>
+      <label class="f" for="f-cat">Type
+        <select id="f-cat" name="cat"></select>
+      </label>
+      <label class="f" for="f-area">Where
+        <input id="f-area" name="area" type="text" maxlength="100" placeholder="Area or venue">
+      </label>
+      <label class="f" for="f-cost">Cost, in words
+        <input id="f-cost" name="cost" type="text" maxlength="80" placeholder="e.g. $20 per person per hour">
+      </label>
+      <label class="f" for="f-costnum">Cost per person in $ (0 if free)
+        <input id="f-costnum" name="costnum" type="number" min="0" step="0.1" inputmode="decimal" placeholder="Leave blank if unknown">
+      </label>
+      <label class="f" for="f-f6">Fit for the 6 year old
+        <select id="f-f6" name="f6"><option value="y">Great</option><option value="m" selected>OK</option><option value="n">Not really</option></select>
+      </label>
+      <label class="f" for="f-f13">Fit for the 13 year old
+        <select id="f-f13" name="f13"><option value="y">Great</option><option value="m" selected>OK</option><option value="n">Not really</option></select>
+      </label>
+      <label class="f full" for="f-link">Link (optional)
+        <input id="f-link" name="link" type="text" maxlength="300" placeholder="https://">
+      </label>
+      <label class="f full" for="f-note">Notes (optional)
+        <textarea id="f-note" name="note" maxlength="300" placeholder="Booking needed, best time to go, what to bring"></textarea>
+      </label>
+      <label class="check full" for="f-rain"><input id="f-rain" name="rain" type="checkbox"> Still works in the rain</label>
+      <div class="full"><button type="submit" class="add-btn">Add to the board</button></div>
+    </form>
+  </details>
+
+  <section class="dine" id="dine" aria-labelledby="dine-h">
+    <div class="dine-head">
+      <div>
+        <h2 id="dine-h">Eating out</h2>
+        <p class="sub">Vegetarian family places, no fine dining. Heart the ones you want to try, and leave a note after you go.</p>
+      </div>
+      <button type="button" class="add-btn" id="dine-add-btn">Add a restaurant</button>
+    </div>
+    <div id="dinebody"></div>
+    <details class="add" id="dinebox">
+      <summary>Add a restaurant</summary>
+      <form class="add-form" id="dineform" autocomplete="off">
+        <label class="f full" for="d-name">Name
+          <input id="d-name" name="name" type="text" maxlength="80" required placeholder="e.g. Komala Vilas">
+        </label>
+        <label class="f" for="d-cat">Kind of meal
+          <select id="d-cat" name="cat"></select>
+        </label>
+        <label class="f" for="d-veg">Menu
+          <select id="d-veg" name="veg"><option value="pure">All vegetarian</option><option value="vegan">Vegan</option><option value="friendly">Also serves meat</option></select>
+        </label>
+        <label class="f" for="d-area">Where
+          <input id="d-area" name="area" type="text" maxlength="100" placeholder="Area or address">
+        </label>
+        <label class="f" for="d-when">Open days or hours (optional)
+          <input id="d-when" name="when" type="text" maxlength="60" placeholder="e.g. Daily 11am to 9pm">
+        </label>
+        <label class="f" for="d-cost">Price, in words
+          <input id="d-cost" name="cost" type="text" maxlength="80" placeholder="e.g. About $12 each">
+        </label>
+        <label class="f" for="d-costnum">Price per person in $ (optional)
+          <input id="d-costnum" name="costnum" type="number" min="0" step="0.1" inputmode="decimal" placeholder="Leave blank if unknown">
+        </label>
+        <label class="f full" for="d-link">Link (optional)
+          <input id="d-link" name="link" type="text" maxlength="300" placeholder="https://">
+        </label>
+        <label class="f full" for="d-note">Notes (optional)
+          <textarea id="d-note" name="note" maxlength="300" placeholder="What to order, what the boys liked, booking tips"></textarea>
+        </label>
+        <div class="full"><button type="submit" class="add-btn">Add to eating out</button></div>
+      </form>
+    </details>
+  </section>
+
+  <p class="legend">Prices and times come from public guides read on 25 Oct 2026 and have not been confirmed with the venues, so check before you go. Restaurant guides were written at different dates, and a few of the prices are older. The dots show how well an idea suits the 6 and 13 year old; tap them to change. Tap the heart on what you want to do. An activity with two hearts moves up to Family favourites. Your hearts and notes are saved on the board so the agent can use them when it suggests the next ones.</p>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var DEFAULT_NAMES = ['Manav', 'Reshu', 'Aryav'];
+  var CATS = {
+    'in': ['Pop-ups & events', 'Courts & sport', 'Play & adventure', 'Museums & learning'],
+    'out': ['Parks & wheels', 'Water play', 'Skill & adventure', 'Nature & farms']
+  };
+  var DINE_CATS = ['Quick & casual', 'Indian, all vegetarian', 'Pizza, pasta & burgers', 'Sit-down family meals', 'Cafés, brunch & treats'];
+  var LABEL = { 'in': 'Indoors', 'out': 'Outdoors' };
+  var FIT_WORD = { y: 'great', m: 'OK', n: 'not really' };
+  var VEG_WORD = { pure: 'All vegetarian', vegan: 'Vegan', friendly: 'Also serves meat' };
+  var HEART = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.4-9.4C1.2 7.600 3.300 4.500 6.600 4.500c2 0 3.500 1 5.400 3 1.900-2 3.400-3 5.400-3 3.300 0 5.400 3.100 4 6.600-1.900 4.800-9.400 9.400-9.400 9.400z"/></svg>';
+  var DATE_NOTES = [
+    { d: '2026-10-31', label: 'Sat 31 Oct', text: 'Halloween' },
+    { d: '2026-11-09', label: 'Mon 9 Nov', text: 'Deepavali public holiday' },
+    { d: '2026-12-31', label: '21 Nov to 31 Dec', text: 'MOE year-end school holidays (international schools differ)' },
+    { d: '2026-12-25', label: 'Fri 25 Dec', text: 'Christmas Day' }
+  ];
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+  var now = new Date();
+  var TODAY = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function shortDate(iso) {
+    var p = String(iso).split('-');
+    if (p.length !== 3) return '';
+    return Number(p[2]) + ' ' + MONTHS[Number(p[1]) - 1];
+  }
+
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage unavailable */ } }
+  };
+
+  var S = {
+    db: null,
+    noDb: false,
+    loaded: false,
+    error: '',
+    acts: [],
+    dining: [],
+    hearts: [],
+    notes: [],
+    hm: new Map(),
+    nm: new Map(),
+    names: DEFAULT_NAMES.slice(),
+    me: store.get('fwb_me') || '',
+    bucket: store.get('fwb_bucket') || 'all',
+    rain: false,
+    free: false,
+    adding: false,
+    draft: '',
+    arm: '',
+    openNotes: new Set(),
+    exp: new Set(),
+    gateMsg: '',
+    drafts: {}
+  };
+  if (['all', 'in', 'out'].indexOf(S.bucket) < 0) S.bucket = 'all';
+
+  function $(s) { return document.querySelector(s); }
+  function h(tag, props) {
+    var el = document.createElement(tag);
+    if (props) {
+      Object.keys(props).forEach(function (k) {
+        var v = props[k];
+        if (v === null || v === undefined || v === false) return;
+        if (k === 'class') el.className = v;
+        else if (k === 'text') el.textContent = v;
+        else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v);
+        else if (k === 'value' || k === 'checked' || k === 'disabled') el[k] = v;
+        else el.setAttribute(k, v === true ? '' : v);
+      });
+    }
+    var kids = Array.prototype.slice.call(arguments, 2);
+    (function add(list) {
+      list.forEach(function (kid) {
+        if (kid === null || kid === undefined || kid === false) return;
+        if (Array.isArray(kid)) { add(kid); return; }
+        el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+      });
+    })(kids);
+    return el;
+  }
+  function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'x'; }
+  function bucketOf(a) { return a.bucket === 'out' ? 'out' : 'in'; }
+  function collOf(a) { return a.kind === 'din' ? 'dining' : 'activities'; }
+
+  var toastTimer = 0;
+  function toast(msg) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 3800);
+  }
+  function fail(e) {
+    var code = e && e.code;
+    if (code === 'bad_key') toast('The family key was not accepted. Reload and enter it again.');
+    else if (code === 'invalid_argument') toast('That did not save. You may only have view access. Ask for contributor access.');
+    else if (code === 'quota_exceeded') toast('The board is full. Remove an old idea first.');
+    else toast('That did not save. Try again in a moment.');
+  }
+  function nudge() {
+    var w = $('#who');
+    w.classList.add('nudge');
+    setTimeout(function () { w.classList.remove('nudge'); }, 1800);
+    toast('Pick your name at the top first.');
+  }
+
+  /* ---------- header ---------- */
+  function renderWho() {
+    var box = $('#who');
+    var kids = [h('span', { class: 'lbl', text: 'Tapping as' })];
+    S.names.forEach(function (n) {
+      kids.push(h('button', {
+        type: 'button', class: 'chip-btn', 'aria-pressed': String(n === S.me),
+        onclick: function () { S.me = (S.me === n ? '' : n); store.set('fwb_me', S.me); render(); }
+      }, n));
+    });
+    if (S.db && S.names.length < 8) {
+      if (S.adding) {
+        var inp = h('input', { type: 'text', id: 'newname', maxlength: '20', placeholder: 'Name', 'aria-label': 'New name', value: S.draft || '' });
+        inp.addEventListener('input', function () { S.draft = inp.value; });
+        inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); saveName(inp.value); } });
+        kids.push(inp,
+          h('button', { type: 'button', class: 'chip-btn', onclick: function () { saveName(inp.value); } }, 'Save'),
+          h('button', { type: 'button', class: 'chip-btn', onclick: function () { S.adding = false; renderWho(); } }, 'Cancel'));
+        box.replaceChildren.apply(box, kids);
+        inp.focus();
+        return;
+      }
+      kids.push(h('button', { type: 'button', class: 'chip-btn', 'aria-label': 'Add a name', onclick: function () { S.adding = true; renderWho(); } }, '+'));
+    }
+    box.replaceChildren.apply(box, kids);
+  }
+  async function saveName(raw) {
+    var n = String(raw || '').trim().slice(0, 20);
+    S.adding = false;
+    S.draft = '';
+    if (!n || S.names.some(function (x) { return x.toLowerCase() === n.toLowerCase(); })) { renderWho(); return; }
+    try { await S.db.doc('meta/family').set({ names: S.names.concat([n]) }); }
+    catch (e) { fail(e); }
+    renderWho();
+  }
+  function renderDates() {
+    var list = DATE_NOTES.filter(function (x) { return x.d >= TODAY; });
+    $('#dates').replaceChildren.apply($('#dates'), list.map(function (x) {
+      return h('li', null, h('b', { text: x.label }), ' ' + x.text);
+    }));
+  }
+  function openBox(boxSel, focusSel) {
+    var d = $(boxSel);
+    d.open = true;
+    d.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var n = $(focusSel);
+    if (n) n.focus({ preventScroll: true });
+  }
+  function renderBar() {
+    var bar = $('#bar');
+    var seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Indoors or outdoors' },
+      [['all', 'All'], ['in', 'Indoors'], ['out', 'Outdoors']].map(function (p) {
+        return h('button', {
+          type: 'button', 'aria-pressed': String(S.bucket === p[0]),
+          onclick: function () { S.bucket = p[0]; store.set('fwb_bucket', S.bucket); render(); }
+        }, p[1]);
+      }));
+    var rain = h('button', { type: 'button', class: 'chip-btn', 'aria-pressed': String(S.rain), onclick: function () { S.rain = !S.rain; render(); } }, 'Rain OK');
+    var free = h('button', { type: 'button', class: 'chip-btn', 'aria-pressed': String(S.free), onclick: function () { S.free = !S.free; render(); } }, 'Free');
+    var eat = h('button', { type: 'button', class: 'chip-btn', onclick: function () { $('#dine').scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 'Eating out');
+    var add = h('button', { type: 'button', class: 'add-btn', onclick: function () { openBox('#addbox', '#f-name'); } }, 'Add an idea');
+    bar.replaceChildren(seg, rain, free, h('span', { class: 'spacer' }), eat, add);
+  }
+
+  /* ---------- shared card parts ---------- */
+  function costChip(a) {
+    var n = typeof a.costNum === 'number' ? a.costNum : null;
+    var cls = 'cost unk';
+    var text = a.cost || 'Check price';
+    if (n === 0) { cls = 'cost free'; text = a.cost || 'Free'; }
+    else if (n !== null && n <= 30) { cls = 'cost ok'; }
+    else if (n !== null) { cls = 'cost over'; text += ' · over $30'; }
+    return h('span', { class: cls, text: text });
+  }
+  async function toggleHeart(a) {
+    if (!S.db) return;
+    if (!S.me) { nudge(); return; }
+    var ref = S.db.collection('hearts').doc(slug(a.id) + '__' + slug(S.me));
+    var on = (S.hm.get(a.id) || []).indexOf(S.me) >= 0;
+    try {
+      if (on) await ref.delete();
+      else await ref.set({ act: a.id, who: S.me, at: new Date().toISOString() });
+    } catch (e) { fail(e); }
+  }
+  async function toggleDone(a) {
+    if (!S.db) return;
+    try { await S.db.doc(collOf(a) + '/' + a.id).update({ doneOn: a.doneOn ? '' : TODAY }); } catch (e) { fail(e); }
+  }
+  async function removeAct(a) {
+    if (!S.db) return;
+    if (S.arm !== a.id) {
+      S.arm = a.id;
+      render();
+      setTimeout(function () { if (S.arm === a.id) { S.arm = ''; render(); } }, 3000);
+      return;
+    }
+    S.arm = '';
+    try { await S.db.doc(collOf(a) + '/' + a.id).delete(); toast('Removed from the board.'); } catch (e) { fail(e); }
+  }
+  async function postNote(a) {
+    if (!S.db) return;
+    if (!S.me) { nudge(); return; }
+    var t = String(S.drafts[a.id] || '').trim();
+    if (!t) return;
+    S.drafts[a.id] = '';
+    S.openNotes.add(a.id);
+    try {
+      await S.db.collection('notes').add({
+        target: a.id, kind: a.kind, name: a.name, who: S.me,
+        text: t.slice(0, 200), at: new Date().toISOString()
+      });
+    } catch (e) { S.drafts[a.id] = t; fail(e); }
+    render();
+  }
+  function heartBtn(a) {
+    var who = S.hm.get(a.id) || [];
+    var mine = !!S.me && who.indexOf(S.me) >= 0;
+    var b = h('button', {
+      type: 'button', class: 'heart', 'aria-pressed': String(mine),
+      'aria-label': (mine ? 'Remove your heart from ' : 'Heart ') + a.name + '. ' + who.length + ' so far.',
+      onclick: function () { toggleHeart(a); }
+    });
+    b.innerHTML = HEART;
+    b.append(document.createTextNode(String(who.length)));
+    return b;
+  }
+  function footMeta(a) {
+    var who = S.hm.get(a.id) || [];
+    var foot = [];
+    if (who.length) foot.push(h('span', { class: 'inits', 'aria-label': 'Hearted by ' + who.join(', ') },
+      who.map(function (n) { return h('i', { title: n, text: n.charAt(0).toUpperCase() }); })));
+    foot.push(h('span', { text: (a.src ? 'via ' + a.src + ' · ' : '') + 'added by ' + (a.by || 'someone') }));
+    if (a.doneOn) foot.push(h('span', { class: 'donetag', text: (a.kind === 'din' ? 'Been ' : 'Done ') + shortDate(a.doneOn) }));
+    return foot;
+  }
+  function actionRow(a) {
+    var linkOk = typeof a.link === 'string' && /^https:\/\//i.test(a.link);
+    var doneWord = a.kind === 'din' ? ['Been here', 'Not yet'] : ['Mark done', 'Not done yet'];
+    return [
+      h('button', { type: 'button', class: 'linkbtn', onclick: function () { toggleDone(a); } }, a.doneOn ? doneWord[1] : doneWord[0]),
+      linkOk ? h('a', { class: 'linkbtn', href: a.link, target: '_blank', rel: 'noopener noreferrer' }, 'Source') : null,
+      h('button', { type: 'button', class: 'linkbtn' + (S.arm === a.id ? ' warn' : ''), onclick: function () { removeAct(a); } }, S.arm === a.id ? 'Tap again to remove' : 'Remove')
+    ];
+  }
+  function notePanel(a) {
+    var list = S.nm.get(a.id) || [];
+    var det = h('details', { class: 'notes' });
+    if (S.openNotes.has(a.id)) det.open = true;
+    det.addEventListener('toggle', function () { if (det.open) S.openNotes.add(a.id); else S.openNotes.delete(a.id); });
+    var inp = h('input', {
+      type: 'text', maxlength: '200', 'data-note': a.id,
+      placeholder: 'What did you think? The agent reads this.',
+      'aria-label': 'Add a note about ' + a.name, value: S.drafts[a.id] || ''
+    });
+    inp.addEventListener('input', function () { S.drafts[a.id] = inp.value; });
+    inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); postNote(a); } });
+    det.append(
+      h('summary', { text: list.length ? 'Notes (' + list.length + ')' : 'Add a note' }),
+      list.length ? h('ul', { class: 'nlist' }, list.map(function (n) { return h('li', null, h('b', { text: (n.who || 'Someone') + ': ' }), n.text); })) : null,
+      h('div', { class: 'nrow' }, inp, h('button', { type: 'button', class: 'chip-btn', onclick: function () { postNote(a); } }, 'Post')));
+    return det;
+  }
+
+  /* ---------- activity card ---------- */
+  function fitBtn(label, key, a) {
+    var v = a[key] || 'm';
+    var level = v === 'y' ? 3 : (v === 'm' ? 2 : 1);
+    var dots = [];
+    for (var i = 1; i <= 3; i++) dots.push(h('span', { class: 'dot' + (i <= level ? ' on' : '') }));
+    return h('button', {
+      type: 'button', class: 'fit',
+      title: 'Fit for ' + label + ': ' + FIT_WORD[v] + '. Tap to change.',
+      'aria-label': 'Fit for ' + label + ': ' + FIT_WORD[v] + '. Tap to change.',
+      onclick: function () { cycleFit(a, key); }
+    }, label, dots);
+  }
+  async function cycleFit(a, key) {
+    if (!S.db) return;
+    var order = ['y', 'm', 'n'];
+    var cur = a[key] || 'm';
+    var obj = {};
+    obj[key] = order[(order.indexOf(cur) + 1) % 3];
+    try { await S.db.doc('activities/' + a.id).update(obj); } catch (e) { fail(e); }
+  }
+  function card(a) {
+    var tags = [costChip(a), h('span', { class: 'tag', text: a.rain ? 'Rain OK' : 'Dry day' })];
+    if (a.when) tags.unshift(h('span', { class: 'tag when', text: a.when }));
+    if (a.fav) tags.unshift(h('span', { class: 'tag regular', text: 'Family regular' }));
+    if (a.top) tags.unshift(h('span', { class: 'tag pick', text: 'Top pick' }));
+    return h('article', { class: 'card' + (a.top ? ' is-top' : '') },
+      h('div', { class: 'card-top' }, h('h4', { text: a.name }), heartBtn(a)),
+      a.area ? h('p', { class: 'where', text: a.area }) : null,
+      a.top && a.topWhy ? h('p', { class: 'why', text: a.topWhy }) : null,
+      h('div', { class: 'tags' }, tags),
+      a.note ? h('p', { class: 'note', text: a.note }) : null,
+      h('div', { class: 'tags' }, fitBtn('6y', 'f6', a), fitBtn('13y', 'f13', a)),
+      h('div', { class: 'foot' }, footMeta(a)),
+      h('div', { class: 'foot' }, actionRow(a)),
+      notePanel(a));
+  }
+
+  /* ---------- dining card ---------- */
+  function dinCard(d) {
+    var tags = [costChip(d), h('span', { class: 'tag veg' + (d.veg === 'friendly' ? ' mixed' : ''), text: VEG_WORD[d.veg] || 'Vegetarian options' })];
+    if (d.when) tags.push(h('span', { class: 'tag', text: d.when }));
+    if (d.top) tags.unshift(h('span', { class: 'tag pick', text: 'Top pick' }));
+    return h('article', { class: 'card' + (d.top ? ' is-top' : '') },
+      h('div', { class: 'card-top' }, h('h4', { text: d.name }), heartBtn(d)),
+      d.area ? h('p', { class: 'where', text: d.area }) : null,
+      d.top && d.topWhy ? h('p', { class: 'why', text: d.topWhy }) : null,
+      h('div', { class: 'tags' }, tags),
+      d.note ? h('p', { class: 'note', text: d.note }) : null,
+      h('div', { class: 'foot' }, footMeta(d)),
+      h('div', { class: 'foot' }, actionRow(d)),
+      notePanel(d));
+  }
+
+  function catGroups(list, cats, mk) {
+    var kids = [];
+    var tops = list.filter(function (a) { return a.top; });
+    if (tops.length) kids.push(h('h3', { class: 'cat', text: 'Top pick' }), h('div', { class: 'cards' }, tops.map(mk)));
+    var rest = list.filter(function (a) { return !a.top; });
+    var all = cats.slice();
+    rest.forEach(function (a) { if (a.cat && all.indexOf(a.cat) < 0) all.push(a.cat); });
+    all.forEach(function (c) {
+      var items = rest.filter(function (a) { return (a.cat || '') === c; });
+      if (items.length) {
+        var open = S.exp.has(c);
+        var shown = open ? items : items.slice(0, 3);
+        kids.push(h('h3', { class: 'cat', text: c }), h('div', { class: 'cards' }, shown.map(mk)));
+        if (items.length > 3) {
+          kids.push(h('button', { type: 'button', class: 'linkbtn', onclick: function () { if (open) S.exp.delete(c); else S.exp.add(c); render(); } },
+            open ? 'Show fewer' : 'Show ' + (items.length - 3) + ' more in ' + c));
+        }
+      }
+    });
+    var un = rest.filter(function (a) { return !a.cat; });
+    if (un.length) kids.push(h('h3', { class: 'cat', text: 'Other' }), h('div', { class: 'cards' }, un.map(mk)));
+    return kids;
+  }
+  function hc(a) { return (S.hm.get(a.id) || []).length; }
+  function cmp(a, b) {
+    return (hc(b) - hc(a)) ||
+      String(a.starts || '9999').localeCompare(String(b.starts || '9999')) ||
+      a.name.localeCompare(b.name);
+  }
+
+  function col(b, list) {
+    var kids = [h('h2', null, LABEL[b], h('span', { class: 'pill', text: String(list.length) }))];
+    if (!list.length) kids.push(h('p', { class: 'none', text: 'Nothing else here with these filters.' }));
+    return h('section', { class: 'col', 'data-b': b }, kids, catGroups(list, CATS[b], card));
+  }
+
+  function renderBoard() {
+    var root = $('#board');
+    if (!S.loaded) { root.replaceChildren(h('p', { class: 'empty', text: 'Loading the board…' })); return; }
+    if (S.noDb) {
+      var kin = h('input', { type: 'password', id: 'famkey', autocomplete: 'current-password', placeholder: 'Family key', 'aria-label': 'Family key' });
+      var go = function () {
+        var v = kin.value.trim();
+        if (!v) return;
+        store.set('fwb_key', v);
+        location.reload();
+      };
+      kin.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); go(); } });
+      root.replaceChildren(h('div', { class: 'empty' }, h('strong', { text: S.gateMsg || 'Enter the family key to open the board.' }),
+        h('div', { class: 'nrow', style: 'max-width:320px;margin:12px auto 0' }, kin, h('button', { type: 'button', class: 'chip-btn', onclick: go }, 'Open'))));
+      return;
+    }
+    if (S.error) { root.replaceChildren(h('div', { class: 'empty' }, h('strong', { text: 'The board could not load.' }), S.error)); return; }
+    if (!S.acts.length) {
+      root.replaceChildren(h('div', { class: 'empty' }, h('strong', { text: 'No ideas on the board yet.' }),
+        'Tap Add an idea to put up the first one. Hearts and favourites fill in as everyone picks.'));
+      return;
+    }
+    var live = S.acts.filter(function (a) { return a && typeof a.name === 'string' && !(a.ends && a.ends < TODAY); });
+    var vis = live.filter(function (a) {
+      return (S.bucket === 'all' || bucketOf(a) === S.bucket) && (!S.rain || a.rain) && (!S.free || a.costNum === 0);
+    });
+    var favs = vis.filter(function (a) { return !a.top && (a.fav || hc(a) >= 2); }).sort(cmp);
+    var favIds = new Set(favs.map(function (a) { return a.id; }));
+    var rest = vis.filter(function (a) { return !favIds.has(a.id); }).sort(cmp);
+    var kids = [];
+    if (favs.length) {
+      kids.push(h('section', { class: 'favs' },
+        h('h2', { text: 'Family favourites' }),
+        h('p', { class: 'sub', text: 'Our regulars, plus anything two or more of us have hearted.' }),
+        h('div', { class: 'grid' }, favs.map(card))));
+    }
+    if (!vis.length) {
+      kids.push(h('p', { class: 'empty', text: 'Nothing matches these filters. Clear one to see more.' }));
+    } else {
+      var buckets = S.bucket === 'all' ? ['in', 'out'] : [S.bucket];
+      kids.push(h('div', { class: 'cols' + (buckets.length === 2 ? ' two' : '') },
+        buckets.map(function (b) { return col(b, rest.filter(function (a) { return bucketOf(a) === b; })); })));
+    }
+    root.replaceChildren.apply(root, kids);
+  }
+
+  function renderDine() {
+    var root = $('#dinebody');
+    if (!S.loaded || S.noDb || S.error) { root.replaceChildren(); return; }
+    var list = S.dining.filter(function (d) { return d && typeof d.name === 'string'; }).sort(cmp);
+    if (!list.length) {
+      root.replaceChildren(h('p', { class: 'empty', text: 'No restaurants yet. Tap Add a restaurant to put up the first one.' }));
+      return;
+    }
+    root.replaceChildren.apply(root, catGroups(list, DINE_CATS, dinCard));
+  }
+
+  function render() {
+    var ae = document.activeElement;
+    var key = ae && ae.getAttribute ? ae.getAttribute('data-note') : null;
+    var pos = key ? ae.selectionStart : 0;
+    var m = new Map();
+    S.hearts.forEach(function (x) {
+      if (!x || typeof x.act !== 'string' || typeof x.who !== 'string') return;
+      if (!m.has(x.act)) m.set(x.act, []);
+      var arr = m.get(x.act);
+      if (arr.indexOf(x.who) < 0) arr.push(x.who);
+    });
+    S.hm = m;
+    var nm = new Map();
+    S.notes.forEach(function (n) {
+      if (!n || typeof n.target !== 'string' || typeof n.text !== 'string') return;
+      if (!nm.has(n.target)) nm.set(n.target, []);
+      nm.get(n.target).push(n);
+    });
+    nm.forEach(function (arr) { arr.sort(function (a, b) { return String(a.at || '').localeCompare(String(b.at || '')); }); });
+    S.nm = nm;
+    renderWho();
+    renderBar();
+    renderBoard();
+    renderDine();
+    if (key) {
+      var inputs = document.querySelectorAll('input[data-note]');
+      for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].getAttribute('data-note') === key) {
+          inputs[i].focus();
+          try { inputs[i].setSelectionRange(pos, pos); } catch (e) { /* not selectable */ }
+          break;
+        }
+      }
+    }
+  }
+
+  /* ---------- add forms ---------- */
+  var form = $('#addform');
+  function syncCats() {
+    var b = form.elements.bucket.value === 'out' ? 'out' : 'in';
+    var sel = $('#f-cat');
+    sel.replaceChildren.apply(sel, CATS[b].map(function (c) { return h('option', { value: c, text: c }); }));
+  }
+  Array.prototype.forEach.call(form.querySelectorAll('input[name="bucket"]'), function (r) { r.addEventListener('change', syncCats); });
+  function readCost(fd) {
+    var cn = String(fd.get('costnum') || '').trim();
+    var costNum = cn === '' ? null : Number(cn);
+    if (costNum !== null && !isFinite(costNum)) costNum = null;
+    if (costNum !== null) costNum = Math.max(0, costNum);
+    return costNum;
+  }
+  form.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    if (!S.db) { toast('Sign in to add ideas.'); return; }
+    if (!S.me) { nudge(); return; }
+    var fd = new FormData(form);
+    var name = String(fd.get('name') || '').trim();
+    if (!name) return;
+    var link = String(fd.get('link') || '').trim();
+    if (link && !/^https:\/\//i.test(link)) { toast('Links need to start with https://'); return; }
+    var doc = {
+      name: name.slice(0, 80),
+      bucket: fd.get('bucket') === 'out' ? 'out' : 'in',
+      cat: String(fd.get('cat') || ''),
+      area: String(fd.get('area') || '').trim().slice(0, 100),
+      cost: String(fd.get('cost') || '').trim().slice(0, 80),
+      costNum: readCost(fd),
+      rain: fd.get('rain') === 'on',
+      f6: String(fd.get('f6') || 'm'),
+      f13: String(fd.get('f13') || 'm'),
+      note: String(fd.get('note') || '').trim().slice(0, 300),
+      link: link,
+      src: '',
+      by: S.me,
+      at: new Date().toISOString(),
+      when: '', starts: '', ends: '',
+      fav: false,
+      top: false,
+      topWhy: '',
+      doneOn: ''
+    };
+    try {
+      await S.db.collection('activities').add(doc);
+      form.reset();
+      syncCats();
+      toast('Added to the board.');
+    } catch (e) { fail(e); }
+  });
+
+  var dform = $('#dineform');
+  function syncDineCats() {
+    var sel = $('#d-cat');
+    sel.replaceChildren.apply(sel, DINE_CATS.map(function (c) { return h('option', { value: c, text: c }); }));
+  }
+  dform.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    if (!S.db) { toast('Sign in to add restaurants.'); return; }
+    if (!S.me) { nudge(); return; }
+    var fd = new FormData(dform);
+    var name = String(fd.get('name') || '').trim();
+    if (!name) return;
+    var link = String(fd.get('link') || '').trim();
+    if (link && !/^https:\/\//i.test(link)) { toast('Links need to start with https://'); return; }
+    var veg = String(fd.get('veg') || 'pure');
+    if (['pure', 'vegan', 'friendly'].indexOf(veg) < 0) veg = 'pure';
+    var doc = {
+      name: name.slice(0, 80),
+      cat: String(fd.get('cat') || ''),
+      veg: veg,
+      area: String(fd.get('area') || '').trim().slice(0, 100),
+      when: String(fd.get('when') || '').trim().slice(0, 60),
+      cost: String(fd.get('cost') || '').trim().slice(0, 80),
+      costNum: readCost(fd),
+      note: String(fd.get('note') || '').trim().slice(0, 300),
+      link: link,
+      src: '',
+      by: S.me,
+      at: new Date().toISOString(),
+      fav: false,
+      top: false,
+      topWhy: '',
+      doneOn: ''
+    };
+    try {
+      await S.db.collection('dining').add(doc);
+      dform.reset();
+      syncDineCats();
+      toast('Added to eating out.');
+    } catch (e) { fail(e); }
+  });
+  $('#dine-add-btn').addEventListener('click', function () { openBox('#dinebox', '#d-name'); });
+
+  /* ---------- start ---------- */
+  var wd = DAYS[now.getDay()];
+  $('#today').textContent = 'Today is ' + wd + ' ' + shortDate(TODAY) + '. Heart what you fancy, add what you find.';
+  syncCats();
+  syncDineCats();
+  renderDates();
+  render();
+
+  /* ---------- storage: Google Apps Script web app in the family's own Google account ---------- */
+  var CFG = { url: 'PASTE_APPS_SCRIPT_URL_HERE' };
+  var cache = {};
+  var subs = [];
+  var pending = 0;
+  var haveData = false;
+  function getKey() { return store.get('fwb_key') || ''; }
+  function docsOf(c) { return Object.keys(cache[c] || {}).map(function (id) { return { id: id, data: function () { return cache[c][id]; } }; }); }
+  function fire() { subs.forEach(function (s) { s.fire(); }); }
+  async function api(payload) {
+    var r = await fetch(CFG.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ key: getKey() }, payload)) });
+    var j = await r.json();
+    if (!j || !j.ok) { var e = new Error((j && j.error) || 'error'); e.code = (j && j.error) || 'error'; throw e; }
+    return j;
+  }
+  async function pull() {
+    if (pending > 0) return;
+    var j = await api({ action: 'all' });
+    if (pending > 0) return;
+    cache = j.data || {};
+    haveData = true;
+    fire();
+  }
+  async function write(op) {
+    var c = op.c, id = op.id;
+    cache[c] = cache[c] || {};
+    if (op.op === 'set') cache[c][id] = Object.assign({}, op.data);
+    else if (op.op === 'update') cache[c][id] = Object.assign({}, cache[c][id] || {}, op.data);
+    else if (op.op === 'delete') delete cache[c][id];
+    fire();
+    pending++;
+    try {
+      await api({ action: op.op, coll: c, id: id, data: op.data || null });
+    } catch (e) {
+      pending--;
+      try { await pull(); } catch (e2) { /* keep local view */ }
+      throw e;
+    }
+    pending--;
+    try { await pull(); } catch (e3) { /* next poll will catch up */ }
+  }
+  function docRef(c, id) {
+    return {
+      set: function (d) { return write({ op: 'set', c: c, id: id, data: d }); },
+      update: function (d) { return write({ op: 'update', c: c, id: id, data: d }); },
+      delete: function () { return write({ op: 'delete', c: c, id: id }); },
+      onSnapshot: function (cb) {
+        var s = { fire: function () { var d = (cache[c] || {})[id]; cb({ exists: !!d, data: function () { return d; } }); } };
+        subs.push(s);
+        if (haveData) s.fire();
+      }
+    };
+  }
+  function makeDb() {
+    return {
+      collection: function (c) {
+        return {
+          onSnapshot: function (cb) {
+            var s = { fire: function () { cb({ docs: docsOf(c) }); } };
+            subs.push(s);
+            if (haveData) s.fire();
+          },
+          doc: function (id) { return docRef(c, id); },
+          add: function (data) {
+            var id = 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            return docRef(c, id).set(data);
+          }
+        };
+      },
+      doc: function (path) { var p = path.split('/'); return docRef(p[0], p[1]); }
+    };
+  }
+
+  async function init() {
+    if (!getKey() || CFG.url.indexOf('https://') !== 0) {
+      S.noDb = true; S.loaded = true;
+      if (getKey()) S.gateMsg = 'This copy of the board has not been connected yet. Ask Manav to finish the setup.';
+      render();
+      return;
+    }
+    var db = makeDb();
+    S.db = db;
+    db.collection('activities').onSnapshot(function (snap) {
+      S.acts = snap.docs.map(function (d) { var o = Object.assign({}, d.data()); o.id = d.id; o.kind = 'act'; return o; });
+      S.loaded = true; S.error = ''; render();
+    });
+    db.collection('dining').onSnapshot(function (snap) {
+      S.dining = snap.docs.map(function (d) { var o = Object.assign({}, d.data()); o.id = d.id; o.kind = 'din'; return o; });
+      render();
+    });
+    db.collection('hearts').onSnapshot(function (snap) { S.hearts = snap.docs.map(function (d) { return d.data(); }); render(); });
+    db.collection('notes').onSnapshot(function (snap) { S.notes = snap.docs.map(function (d) { return d.data(); }); render(); });
+    db.doc('meta/family').onSnapshot(function (s) {
+      var d = s.exists ? s.data() : null;
+      if (d && Array.isArray(d.names)) {
+        var clean = d.names.filter(function (x) { return typeof x === 'string' && x; }).slice(0, 8);
+        if (clean.length) S.names = clean;
+      }
+      render();
+    });
+    try { await pull(); }
+    catch (e) {
+      S.db = null; S.noDb = true; S.loaded = true;
+      if (e && e.code === 'bad_key') { store.set('fwb_key', ''); S.gateMsg = 'That key was not accepted. Try again.'; }
+      else { S.noDb = false; S.error = 'Could not reach the board. Check your internet and reload.'; }
+      render();
+      return;
+    }
+    setInterval(function () { if (!document.hidden) pull().catch(function () {}); }, 10000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) pull().catch(function () {}); });
+  }
+    init();
+})();
+</script>
+</body>
+</html>
